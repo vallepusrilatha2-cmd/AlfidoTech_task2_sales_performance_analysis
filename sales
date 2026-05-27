@@ -1,0 +1,87 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import warnings
+warnings.filterwarnings('ignore')
+pd.set_option('display.max_columns',None)
+data = pd.read_csv('superstore_final_dataset.csv')
+print(data.head())
+print(data.describe())
+print(data.info())
+print('Dataset Shape:',data.shape)
+print(data.dtypes)
+print(data.isnull().sum())
+print(data.describe())
+data.drop_duplicates(inplace=True)
+data = data.ffill()
+data['Order_Date']=pd.to_datetime(data['Order_Date'],dayfirst=True)
+data['Ship_Date']=pd.to_datetime(data['Ship_Date'],dayfirst=True)
+print(data.info(23))
+print(data.head(23))
+print(data.columns)
+print(data['Sales'])
+data['Year'] = data['Order_Date'].dt.year
+data['Month'] = data['Order_Date'].dt.month_name()
+average_order_value = data['Sales'].mean()
+print("Average Order Value:", average_order_value)
+total_orders = data['Order_ID'].nunique()
+print("Total Orders:",total_orders)
+monthly_sales = data.groupby('Month')['Sales'].sum()
+plt.figure(figsize=(12,5))
+monthly_sales.plot(kind='line', marker='o',color='orange')
+plt.title("Monthly Sales Trend",color='blue')
+plt.xlabel("Month",color='blue')
+plt.ylabel("Sales",color='blue')
+plt.xticks(rotation=45)
+plt.show()
+region_sales = data.groupby('Region')['Sales'].sum().sort_values()
+plt.figure(figsize=(8,5))
+sns.barplot(
+    x=region_sales.index,
+    y=region_sales.values,
+    color='yellow'
+)
+plt.title("Sales by Region",color='purple')
+plt.xlabel("Region",color='purple')
+plt.ylabel("Total Sales",color='purple')
+plt.show()
+category_sales = data.groupby('Category')['Sales'].sum()
+plt.figure(figsize=(8,5))
+plt.pie(
+    category_sales,
+    labels=category_sales.index,
+    autopct='%1.1f%%'
+)
+plt.title("Sales by Category",color='red')
+plt.show()
+top_products = data.groupby('Product_Name')['Sales'].sum().sort_values(ascending=False).head(10)
+plt.figure(figsize=(12,6))
+sns.scatterplot(
+    x=top_products.values,
+    y=top_products.index,color='blue'
+)
+plt.title("Top 10 Products by Sales",color='red')
+plt.xlabel("Sales",color='red')
+plt.ylabel("Product",color='red')
+plt.show()
+low_products = data.groupby('Product_Name')['Sales'].sum().sort_values().head(10)
+plt.figure(figsize=(12,6))
+sns.barplot(
+    x=low_products.values,
+    y=low_products.index,
+    color='purple'
+)
+plt.title("Worst Performing Products by Profit",color='green')
+plt.xlabel("Sales",color='green')
+plt.ylabel("Product",color='green')
+plt.show()
+yearly_sales = data.groupby('Year')['Sales'].sum()
+plt.figure(figsize=(8,5))
+yearly_sales.plot(
+    kind='bar',color='red'
+)
+plt.title("Yearly Sales Performance",color='darkblue')
+plt.xlabel("Year",color='darkblue')
+plt.ylabel("Sales",color='darkblue')
+plt.show()
